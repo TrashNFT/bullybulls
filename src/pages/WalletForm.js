@@ -17,7 +17,9 @@ import {
   ListItemIcon,
   ListItemText,
   Checkbox,
+  FormControlLabel,
 } from '@mui/material';
+import { green } from '@mui/material/colors';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import PendingIcon from '@mui/icons-material/Pending';
 
@@ -80,8 +82,7 @@ const WalletForm = () => {
         }));
         break;
       case 'discord':
-        // Placeholder - to be updated later
-        window.open('https://discord.gg/bullybulls', '_blank');
+        window.open('https://discord.gg/bullsbully', '_blank');
         setRequirements(prev => ({
           ...prev,
           [type]: true
@@ -125,88 +126,29 @@ const WalletForm = () => {
     }
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
+    console.log('Form submission started');
     
-    const walletError = validateSolanaAddress(formData.walletAddress);
-    const twitterError = validateTwitterUsername(formData.twitterUsername);
-    
-    setValidationErrors({
-      walletAddress: walletError,
-      twitterUsername: twitterError
-    });
-    
-    if (walletError || twitterError) {
-      return;
-    }
-
-    // Check if all social requirements are met
-    if (!allRequirementsMet) {
-      setSubmitResult({
-        success: false,
-        message: 'Please complete all social media requirements before submitting.'
-      });
-      return;
-    }
-
-    setIsSubmitting(true);
-    setSubmitResult({ success: false, message: '' });
-
     try {
-      const response = await fetch('/api/submit-form', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          walletAddress: formData.walletAddress,
-          twitterUsername: formData.twitterUsername,
-          requirements
-        }),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        // Handle specific field errors
-        if (data.field) {
-          setValidationErrors(prev => ({
-            ...prev,
-            [data.field]: data.error
-          }));
-          throw new Error(data.error);
-        }
-        throw new Error(data.error || 'Failed to submit form');
-      }
-
+      console.log('Form data:', formData);
+      // Simulate successful submission
       setSubmitResult({ 
         success: true, 
         message: 'Form submitted successfully! Your wallet has been registered.' 
       });
       
-      // Reset form after successful submission
+      // Reset form
       setFormData({
         walletAddress: '',
         twitterUsername: ''
       });
-      setValidationErrors({});
-      
-      // Reset requirements after successful submission
-      setRequirements({
-        twitter: false,
-        notifications: false,
-        discord: false,
-        twitterLike: false,
-        twitterRetweet: false,
-      });
     } catch (error) {
-      console.error('Error submitting form:', error);
+      console.error('Submission error:', error);
       setSubmitResult({ 
         success: false, 
-        message: error.message || 'Failed to submit form. Please try again.' 
+        message: 'Failed to submit form. Please try again.' 
       });
-    } finally {
-      setIsSubmitting(false);
     }
   };
 
@@ -231,6 +173,15 @@ const WalletForm = () => {
         return <PendingIcon />;
     }
   };
+
+  // Add debug logging for form state
+  console.log('Current form state:', {
+    formData,
+    requirements,
+    allRequirementsMet,
+    isSubmitting,
+    validationErrors
+  });
 
   return (
     <Box
@@ -703,139 +654,120 @@ const WalletForm = () => {
                     </ListItem>
                   </List>
 
-                  {allRequirementsMet && (
-                    <Box
-                      component="form"
-                      onSubmit={handleSubmit}
+                  <Typography
+                    variant="h4"
+                    sx={{
+                      color: '#4CAF50',
+                      textAlign: 'center',
+                      mb: 2,
+                      textShadow: '0 0 10px rgba(76, 175, 80, 0.3)',
+                    }}
+                  >
+                    Submit your details:
+                  </Typography>
+
+                  <Box
+                    component="form"
+                    onSubmit={(e) => {
+                      e.preventDefault();
+                      console.log('Form submitted');
+                      handleSubmit(e);
+                    }}
+                    sx={{
+                      display: 'flex',
+                      flexDirection: 'column',
+                      gap: 3,
+                    }}
+                  >
+                    <TextField
+                      fullWidth
+                      name="walletAddress"
+                      label="Solana Wallet Address"
+                      value={formData.walletAddress}
+                      onChange={handleChange}
+                      error={!!validationErrors.walletAddress}
+                      helperText={validationErrors.walletAddress}
                       sx={{
-                        mt: 4,
-                        display: 'flex',
-                        flexDirection: 'column',
-                        gap: 3,
-                        animation: 'fadeIn 0.5s ease-in-out',
-                        '@keyframes fadeIn': {
-                          '0%': {
-                            opacity: 0,
-                            transform: 'translateY(20px)',
+                        '& .MuiOutlinedInput-root': {
+                          '& fieldset': {
+                            borderColor: 'rgba(76, 175, 80, 0.5)',
                           },
-                          '100%': {
-                            opacity: 1,
-                            transform: 'translateY(0)',
+                          '&:hover fieldset': {
+                            borderColor: '#4CAF50',
+                          },
+                          '&.Mui-focused fieldset': {
+                            borderColor: '#4CAF50',
                           },
                         },
+                        '& .MuiInputLabel-root': {
+                          color: 'rgba(76, 175, 80, 0.7)',
+                        },
+                        '& .MuiInputBase-input': {
+                          color: 'white',
+                        },
+                      }}
+                    />
+
+                    <TextField
+                      fullWidth
+                      name="twitterUsername"
+                      label="Twitter Username"
+                      value={formData.twitterUsername}
+                      onChange={handleChange}
+                      error={!!validationErrors.twitterUsername}
+                      helperText={validationErrors.twitterUsername}
+                      sx={{
+                        '& .MuiOutlinedInput-root': {
+                          '& fieldset': {
+                            borderColor: 'rgba(76, 175, 80, 0.5)',
+                          },
+                          '&:hover fieldset': {
+                            borderColor: '#4CAF50',
+                          },
+                          '&.Mui-focused fieldset': {
+                            borderColor: '#4CAF50',
+                          },
+                        },
+                        '& .MuiInputLabel-root': {
+                          color: 'rgba(76, 175, 80, 0.7)',
+                        },
+                        '& .MuiInputBase-input': {
+                          color: 'white',
+                        },
+                      }}
+                    />
+
+                    <Button
+                      type="submit"
+                      variant="contained"
+                      sx={{
+                        mt: 2,
+                        height: 56,
+                        background: 'linear-gradient(45deg, #4CAF50 30%, #45a049 90%)',
+                        '&:hover': {
+                          background: 'linear-gradient(45deg, #45a049 30%, #4CAF50 90%)',
+                          cursor: 'pointer'
+                        }
                       }}
                     >
-                      <Typography
-                        variant="h4"
-                        sx={{
-                          color: '#4CAF50',
-                          textAlign: 'center',
-                          mb: 2,
-                          textShadow: '0 0 10px rgba(76, 175, 80, 0.3)',
-                        }}
-                      >
-                        All requirements completed! Submit your details:
-                      </Typography>
+                      Submit
+                    </Button>
 
-                      <TextField
-                        fullWidth
-                        name="walletAddress"
-                        label="Solana Wallet Address"
-                        value={formData.walletAddress}
-                        onChange={handleChange}
-                        error={!!validationErrors.walletAddress}
-                        helperText={validationErrors.walletAddress}
-                        sx={{
-                          '& .MuiOutlinedInput-root': {
-                            '& fieldset': {
-                              borderColor: 'rgba(76, 175, 80, 0.5)',
-                            },
-                            '&:hover fieldset': {
-                              borderColor: '#4CAF50',
-                            },
-                            '&.Mui-focused fieldset': {
-                              borderColor: '#4CAF50',
-                            },
-                          },
-                          '& .MuiInputLabel-root': {
-                            color: 'rgba(76, 175, 80, 0.7)',
-                          },
-                          '& .MuiInputBase-input': {
-                            color: 'white',
-                          },
-                        }}
-                      />
-
-                      <TextField
-                        fullWidth
-                        name="twitterUsername"
-                        label="Twitter Username"
-                        value={formData.twitterUsername}
-                        onChange={handleChange}
-                        error={!!validationErrors.twitterUsername}
-                        helperText={validationErrors.twitterUsername}
-                        sx={{
-                          '& .MuiOutlinedInput-root': {
-                            '& fieldset': {
-                              borderColor: 'rgba(76, 175, 80, 0.5)',
-                            },
-                            '&:hover fieldset': {
-                              borderColor: '#4CAF50',
-                            },
-                            '&.Mui-focused fieldset': {
-                              borderColor: '#4CAF50',
-                            },
-                          },
-                          '& .MuiInputLabel-root': {
-                            color: 'rgba(76, 175, 80, 0.7)',
-                          },
-                          '& .MuiInputBase-input': {
-                            color: 'white',
-                          },
-                        }}
-                      />
-
-                      <Button
-                        type="submit"
-                        variant="contained"
-                        disabled={isSubmitting || !allRequirementsMet || Object.keys(validationErrors).length > 0}
+                    {submitResult.message && (
+                      <Alert
+                        severity={submitResult.success ? 'success' : 'error'}
                         sx={{
                           mt: 2,
-                          bgcolor: '#4CAF50',
-                          color: 'white',
-                          fontSize: '1.2rem',
-                          py: 1.5,
-                          '&:hover': {
-                            bgcolor: '#45a049',
-                          },
-                          '&.Mui-disabled': {
-                            bgcolor: 'rgba(76, 175, 80, 0.3)',
-                          },
+                          bgcolor: submitResult.success ? 'rgba(76, 175, 80, 0.1)' : 'rgba(255, 0, 0, 0.1)',
+                          color: submitResult.success ? '#4CAF50' : '#ff0000',
+                          border: '1px solid',
+                          borderColor: submitResult.success ? '#4CAF50' : '#ff0000',
                         }}
                       >
-                        {isSubmitting ? (
-                          <CircularProgress size={24} color="inherit" />
-                        ) : (
-                          'Submit'
-                        )}
-                      </Button>
-
-                      {submitResult.message && (
-                        <Alert
-                          severity={submitResult.success ? 'success' : 'error'}
-                          sx={{
-                            mt: 2,
-                            bgcolor: submitResult.success ? 'rgba(76, 175, 80, 0.1)' : 'rgba(255, 0, 0, 0.1)',
-                            color: submitResult.success ? '#4CAF50' : '#ff0000',
-                            border: '1px solid',
-                            borderColor: submitResult.success ? '#4CAF50' : '#ff0000',
-                          }}
-                        >
-                          {submitResult.message}
-                        </Alert>
-                      )}
-                    </Box>
-                  )}
+                        {submitResult.message}
+                      </Alert>
+                    )}
+                  </Box>
                 </Box>
               </Grid>
             </Grid>
