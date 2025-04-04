@@ -127,8 +127,11 @@ const WalletForm = () => {
   };
 
   const handleSubmit = (e) => {
-    e.preventDefault();
+    if (e) {
+      e.preventDefault();
+    }
     console.log('Form submission started');
+    alert('Form submitted!'); // Add immediate feedback
     
     try {
       console.log('Form data:', formData);
@@ -202,16 +205,13 @@ const WalletForm = () => {
             textShadow: '0 0 10px rgba(255, 0, 0, 0.3)',
           }}
         >
-          TEST UPDATE - WALLET REGISTRATION
+          TEST UPDATE - CLICK SUBMIT
         </Typography>
 
         <Box
           component="form"
-          onSubmit={(e) => {
-            e.preventDefault();
-            console.log('TEST - Form submitted');
-            alert('Form submitted!');
-          }}
+          noValidate
+          onSubmit={handleSubmit}
           sx={{
             display: 'flex',
             flexDirection: 'column',
@@ -268,18 +268,20 @@ const WalletForm = () => {
           <Button
             type="submit"
             variant="contained"
+            onClick={handleSubmit}
             sx={{
               mt: 2,
               py: 2,
               bgcolor: '#FF0000',
               color: 'white',
               fontSize: '1.2rem',
+              cursor: 'pointer',
               '&:hover': {
                 bgcolor: '#FF3366',
               },
             }}
           >
-            TEST - CLICK TO SUBMIT
+            CLICK HERE TO SUBMIT
           </Button>
         </Box>
       </Container>
