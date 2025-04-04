@@ -1,6 +1,7 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
+const path = require('path');
 const Submission = require('./models/Submission');
 require('dotenv').config();
 
@@ -8,19 +9,25 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+// Serve static files from the React app
+app.use(express.static(path.join(__dirname, '../build')));
+
 // Connect to MongoDB
-mongoose.connect(process.env.MONGODB_URI, {})
-  .then(() => {
-    console.log('MongoDB Connected:', mongoose.connection.host);
-    console.log('MongoDB connection successful');
-  })
-  .catch(err => {
-    console.error('MongoDB connection error:', err);
-  });
+mongoose.connect(process.env.MONGODB_URI, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true
+})
+.then(() => {
+  console.log('MongoDB Connected:', mongoose.connection.host);
+  console.log('MongoDB connection successful');
+})
+.catch(err => {
+  console.error('MongoDB connection error:', err);
+});
 
 // Test route
 app.get('/api/test', (req, res) => {
-    res.json({ message: 'Backend is working!' });
+  res.json({ message: 'Backend is working!' });
 });
 
 // Submit form route
@@ -88,7 +95,15 @@ app.get('/api/submissions', async (req, res) => {
     }
 });
 
+// Handle React routing, return all requests to React app
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, '../build/index.html'));
+});
+
 const PORT = process.env.PORT || 5001;
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
-}); 
+});
+
+// Export the Express API
+module.exports = app; 

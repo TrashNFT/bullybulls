@@ -4,26 +4,19 @@
     {
       "src": "backend/server.js",
       "use": "@vercel/node"
-    },
-    {
-      "src": "package.json",
-      "use": "@vercel/static-build",
-      "config": {
-        "distDir": "build"
-      }
     }
   ],
   "routes": [
     {
       "src": "/api/(.*)",
-      "dest": "backend/server.js"
+      "dest": "/backend/server.js"
     },
     {
       "src": "/(.*)",
-      "dest": "/$1"
+      "dest": "/backend/server.js"
     }
   ],
   "env": {
-    "MONGODB_URI": "@mongodb_uri"
+    "MONGODB_URI": "mongodb+srv://bullybulls:1BQj5MltT4vdemAO@cluster0.qjnoyya.mongodb.net/bully-bulls?retryWrites=true&w=majority&appName=Cluster0"
   }
 } 
